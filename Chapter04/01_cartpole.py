@@ -1,7 +1,8 @@
 from collections import namedtuple
 from typing import List
 
-import gym
+import gym.envs.classic_control
+import gym.wrappers
 import numpy as np
 import torch
 from tensorboardX import SummaryWriter
@@ -15,6 +16,7 @@ HIDDEN_SIZE = 128
 BATCH_SIZE = 16
 PERCENTILE = 70
 LEARNING_RATE = 0.01
+MAX_EPISODE_STEPS = 1000
 
 Episode = namedtuple('Episode', field_names = ['reward', 'steps'])
 EpisodeStep = namedtuple('EpisodeStep', field_names = ['observation', 'action'])
@@ -92,8 +94,12 @@ def filter_batch(batch: List[Episode], percentile: float):
 
 
 if __name__ == "__main__":
-    env = gym.make('CartPole-v0')
-    env = gym.wrappers.Monitor(env, '01_cartpole-recording', force = True)
+    # env = gym.make('CartPole-v0')
+    env = gym.envs.classic_control.cartpole.CartPoleEnv()
+    env.spec = gym.spec('CartPole-v0')
+    env = gym.wrappers.TimeLimit(env, max_episode_steps = MAX_EPISODE_STEPS)
+    # env = gym.wrappers.Monitor(env, '01_cartpole-recording', force = True)
+
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
     net = Net(obs_size, HIDDEN_SIZE, n_actions)
@@ -119,8 +125,20 @@ if __name__ == "__main__":
         writer.add_scalar('reward_mean', reward_mean, iter_no)
 
         # The maximum number of time steps in Gym is 200, so abort before Gym aborts us (remember: the CartPole environment yields a reward of 1 for each survived time step).
-        if reward_mean > 199:
+        if reward_mean >= MAX_EPISODE_STEPS:
             log.info('Solved!')
             break
 
     writer.close()
+
+    print('Showing what we have learned.')
+    env = gym.wrappers.Monitor(env, '01_cartpole-recording', force = True)
+    obs = env.reset()
+    sm = nn.Softmax(dim = 1)
+    while True:
+        # noinspection PyArgumentList
+        action_probs = sm(net(torch.FloatTensor([obs]))).data.numpy()[0]
+        action = np.random.choice(len(action_probs), p = action_probs)
+        obs, _, done, _ = env.step(action)
+        if done:
+            break
