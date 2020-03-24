@@ -16,6 +16,7 @@ class DQN(nn.Module):
                 nn.Conv2d(64, 64, kernel_size = 3, stride = 1),
                 nn.ReLU()
         )
+
         conv_out_size = self._get_conv_out(input_shape)
         self.fc = nn.Sequential(
                 nn.Linear(conv_out_size, 512),
@@ -25,10 +26,11 @@ class DQN(nn.Module):
 
 
     def forward(self, x):
-        conv_out = self.conv(x).view(x.size()[0], -1)
+        x_float = x.float() / 256
+        conv_out = self.conv(x_float).view(x_float.size()[0], -1)
         return self.fc(conv_out)
 
 
-    def _get_conv_out(self, input_shape):
-        out = self.conv(torch.zeros(1, *input_shape))
+    def _get_conv_out(self, shape):
+        out = self.conv(torch.zeros(1, *shape))
         return int(np.prod(out.size()))

@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     def process_batch(engine: Engine, batch):
         optimizer.zero_grad()
-        loss_v = calc_loss_dqn(batch, net, target_net, params.gamma, device = device)
+        loss_v = calc_loss_dqn(batch, net, target_net.target_model, params.gamma, device = device)
         loss_v.backward()
         optimizer.step()
 

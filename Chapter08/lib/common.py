@@ -43,7 +43,7 @@ def unpack_batch(batch: List[ptan.experience.ExperienceFirstLast]):
         dones.append(last_state is None)
         # Append state initial state if the episode was done. This simplifies the implementation of
         # the Bellman equation and does not break it as the "done values" are getting masked and zeroed.
-        last_states.append(state if last_state is None else np.array(last_state, copy = False))
+        last_states.append(state if last_state is None else np.array(last_state))
     return np.array(states, copy = False), \
            np.array(actions), \
            np.array(rewards, dtype = np.float32), \
@@ -62,7 +62,7 @@ def calc_loss_dqn(batch, net, target_net, gamma, device):
     dones_v = torch.BoolTensor(dones).to(device)
     next_states_v = torch.tensor(next_states).to(device)
 
-    qs_v = net(states_v).gather(1, actions_v.unsqueeze(-1)).squezze(-1)
+    qs_v = net(states_v).gather(1, actions_v.unsqueeze(-1)).squeeze(-1)
     next_qs_v = target_net(next_states_v).max(1)[0]
     next_qs_v[dones_v] = 0.0
     bellman_vals = rewards_v + gamma * next_qs_v.detach()
