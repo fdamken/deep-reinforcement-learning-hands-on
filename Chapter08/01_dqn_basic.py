@@ -6,8 +6,8 @@ import torch
 from ignite.engine import Engine
 from torch import optim
 
-from Chapter06.lib.dqn_model import DQN
 from Chapter08.lib.common import batch_generator, calc_loss_dqn, EpsilonTracker, HYPERPARAMS, setup_ignite
+from Chapter08.lib.dqn_model import DQN
 
 
 NAME = "01_baseline"

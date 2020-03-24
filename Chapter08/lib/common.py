@@ -36,7 +36,7 @@ HYPERPARAMS = {
 def unpack_batch(batch: List[ptan.experience.ExperienceFirstLast]):
     states, actions, rewards, dones, last_states = [], [], [], [], []
     for (state, action, reward, last_state) in batch:
-        state = np.array(state, copy = False)
+        state = np.array(state)
         states.append(state)
         actions.append(action)
         rewards.append(reward)
@@ -59,7 +59,7 @@ def calc_loss_dqn(batch, net, target_net, gamma, device):
     actions_v = torch.tensor(actions).to(device)
     rewards_v = torch.tensor(rewards).to(device)
     # noinspection PyArgumentList
-    dones_v = torch.BoolTensor(rewards).to(device)
+    dones_v = torch.BoolTensor(dones).to(device)
     next_states_v = torch.tensor(next_states).to(device)
 
     qs_v = net(states_v).gather(1, actions_v.unsqueeze(-1)).squezze(-1)
