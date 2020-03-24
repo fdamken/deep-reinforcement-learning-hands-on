@@ -363,3 +363,4 @@ $RECYCLE.BIN/
 *-recording
 runs
 *.dat
+!*.final.dat
