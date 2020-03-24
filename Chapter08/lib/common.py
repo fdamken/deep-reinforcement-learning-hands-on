@@ -52,7 +52,6 @@ def unpack_batch(batch: List[ptan.experience.ExperienceFirstLast]):
 
 
 
-@torch.no_grad()
 def calc_loss_dqn(batch, net, target_net, gamma, device):
     states, actions, rewards, dones, next_states = unpack_batch(batch)
     states_v = torch.tensor(states).to(device)
@@ -63,8 +62,9 @@ def calc_loss_dqn(batch, net, target_net, gamma, device):
     next_states_v = torch.tensor(next_states).to(device)
 
     qs_v = net(states_v).gather(1, actions_v.unsqueeze(-1)).squeeze(-1)
-    next_qs_v = target_net(next_states_v).max(1)[0]
-    next_qs_v[dones_v] = 0.0
+    with torch.no_grad():
+        next_qs_v = target_net(next_states_v).max(1)[0]
+        next_qs_v[dones_v] = 0.0
     bellman_vals = rewards_v + gamma * next_qs_v.detach()
     return nn.MSELoss()(qs_v, bellman_vals)
 
