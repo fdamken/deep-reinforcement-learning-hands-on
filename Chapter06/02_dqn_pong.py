@@ -146,6 +146,8 @@ if __name__ == "__main__":
 
         reward = agent.play_step(net, epsilon, device)
         if reward is not None:
+            # Collect metrics only iff the game has finished. Learning is performed anyway!
+
             total_rewards.append(reward)
 
             now = time.time()
