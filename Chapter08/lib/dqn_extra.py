@@ -11,13 +11,13 @@ class NoisyLinear(nn.Linear):
         # Sigma is the factor of how much effect the noise has. These sigmas will be updated using backprop.
 
         w = torch.full((out_features, in_features), sigma_init)
-        self.sigma_weight = nn.Parameter(w, requires_grad = True)
+        self.sigma_weight = nn.Parameter(w)
         z = torch.zeros(out_features, in_features)
         self.register_buffer('epsilon_weight', z)
 
         if bias:
             w = torch.full((out_features,), sigma_init)
-            self.sigma_bias = nn.Parameter(w, requires_grad = True)
+            self.sigma_bias = nn.Parameter(w)
             z = torch.zeros(out_features)
             self.register_buffer('epsilon_bias', z)
 
@@ -48,7 +48,7 @@ class NoisyFactorizedLinear(nn.Linear):
 
         sigma_init = sigma_zero / np.sqrt(in_features)
         w = torch.full((out_features, in_features), sigma_init)
-        self.sigma_weight = nn.Parameter(w, requires_grad = True)
+        self.sigma_weight = nn.Parameter(w)
         z_in = torch.zeros(1, in_features)
         self.register_buffer('epsilon_input', z_in)
         z_out = torch.zeros(out_features, 1)
@@ -56,7 +56,7 @@ class NoisyFactorizedLinear(nn.Linear):
 
         if bias:
             w = torch.full((out_features,), sigma_init)
-            self.sigma_bias = nn.Parameter(w, requires_grad = True)
+            self.sigma_bias = nn.Parameter(w)
 
 
     def forward(self, x):
